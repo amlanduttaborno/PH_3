@@ -211,13 +211,7 @@ function renderHistory() {
 	}
 	callHistory.slice().reverse().forEach(item => {
 		callHistoryEl.innerHTML += `
-			<li class="flex justify-between items-center border-b pb-1">
-				<div>
-					<div class="font-semibold text-green-800">${item.name}</div>
-					<div class="text-xs text-gray-500">${item.number}</div>
-				</div>
-				<div class="text-xs text-gray-400">${item.time}</div>
-			</li>
+			
 		`;
 	});
 }
