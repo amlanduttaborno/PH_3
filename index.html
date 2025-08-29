@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<title>Emergency Service Directory</title>
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+	<link rel="icon" href="assets/logo.png" />
+</head>
+<body class="bg-green-50 min-h-screen">
+	<!-- Navbar -->
+	<nav class="flex items-center justify-between bg-white shadow px-6 py-3">
+		<div class="flex items-center space-x-2">
+			<img src="assets/logo.png" alt="Logo" class="h-10 w-10"/>
+			<span class="font-bold text-lg text-green-800">Emergency Service</span>
+		</div>
+		<div class="flex items-center space-x-6">
+			<div class="flex items-center space-x-1">
+				<span id="heartCount" class="text-red-500 text-xl">0</span>
+				<img src="assets/heart.png" alt="Heart" class="h-5 w-5"/>
+			</div>
+			<div class="flex items-center space-x-1">
+				<span id="coinCount" class="text-yellow-500 font-bold">100</span>
+				<img src="assets/coin.png" alt="Coin" class="h-5 w-5"/>
+			</div>
+			<div class="flex items-center space-x-1">
+				<span id="copyCount" class="text-green-700 font-bold">0</span>
+				<button class="bg-green-200 px-2 py-1 rounded text-green-800 font-semibold">Copy</button>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Hero Section -->
+		<section class="py-8 text-center relative" style="background: #05322a;">
+		<img src="assets/logo-dark.png" alt="Bangladesh Logo" class="mx-auto h-20 mb-2"/>
+			<h1 class="text-3xl md:text-4xl font-extrabold text-white mb-2 tracking-wide">Emergency Service Directory</h1>
+			<p class="text-white text-lg font-semibold">Government Emergency Services at Your Fingertip – A Project by Government of the People's Republic of Bangladesh</p>
+	</section>
+
+	<!-- Main Section -->
+	<main class="max-w-7xl mx-auto mt-6 px-2 md:px-0 flex flex-col md:flex-row gap-6">
+		<!-- Card Section -->
+		<section class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="cardSection">
+		</section>
+		<!-- History Section -->
+		<div class="w-full md:w-80 bg-white rounded-lg shadow p-4 flex flex-col">
+			<div class="flex items-center justify-between mb-2">
+				<div class="flex items-center space-x-2">
+					<svg class="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<circle cx="12" cy="12" r="10" stroke-width="2"/>
+						<path stroke-width="2" stroke-linecap="round" d="M12 6v6h4"/>
+					</svg>
+					<span class="font-bold text-green-700">Call History</span>
+				</div>
+				<button id="clearHistory" class="text-sm bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200">Clear</button>
+			</div>
+			<ul id="callHistory" class="flex-1 overflow-y-auto space-y-2">
+			</ul>
+		</div>
+	</main>
+
+	<script>
+// Emergency services data
+const services = [
+	{
+		id: 1,
+		icon: "assets/emergency.png",
+		name: "National Emergency",
+		en: "National Emergency Number",
+		number: "999",
+		category: "All",
+		badge: "bg-gray-200 text-gray-700",
+	},
+	{
+		id: 2,
+		icon: "assets/police.png",
+		name: "Police",
+		en: "Police Helpline Number",
+		number: "999",
+		category: "Police",
+		badge: "bg-gray-200 text-gray-700",
+	},
+	{
+		id: 3,
+		icon: "assets/fire-service.png",
+		name: "Fire Service",
+		en: "Fire Service Number",
+		number: "999",
+		category: "Fire",
+		badge: "bg-gray-200 text-gray-700",
+	},
+	{
+		id: 4,
+		icon: "assets/ambulance.png",
+		name: "Ambulance",
+		en: "Ambulance Service",
+		number: "1994-999999",
+		category: "Health",
+		badge: "bg-gray-200 text-gray-700",
+	},
+	{
+		id: 5,
+		icon: "assets/emergency.png",
+		name: "Women & Child Helpline",
+		en: "Women & Child Helpline",
+		number: "109",
+		category: "Help",
+		badge: "bg-gray-200 text-gray-700",
+	},
+	{
+		id: 6,
+		icon: "assets/emergency.png",
+		name: "Anti-Corruption",
+		en: "Anti-Corruption Helpline",
+		number: "106",
+		category: "Govt.",
+		badge: "bg-gray-200 text-gray-700",
+	},
+	{
+		id: 7,
+		icon: "assets/emergency.png",
+		name: "Electricity Outage",
+		en: "Electricity Helpline",
+		number: "16216",
+		category: "Electricity",
+		badge: "bg-gray-200 text-gray-700",
+	},
+	{
+		id: 8,
+		icon: "assets/brac.png",
+		name: "Brac",
+		en: "Brac Helpline",
+		number: "16445",
+		category: "NGO",
+		badge: "bg-gray-200 text-gray-700",
+	},
+	{
+		id: 9,
+		icon: "assets/Bangladesh-Railway.png",
+		name: "Bangladesh Railway",
+		en: "Bangladesh Railway Helpline",
+		number: "163",
+		category: "Travel",
+		badge: "bg-gray-200 text-gray-700",
+	},
+];
+
+// State
+let heartCount = 0;
+let coinCount = 100;
+let copyCount = 0;
+let callHistory = [];
+
+// DOM Elements
+const cardSection = document.getElementById("cardSection");
+const heartCountEl = document.getElementById("heartCount");
+const coinCountEl = document.getElementById("coinCount");
+const copyCountEl = document.getElementById("copyCount");
+const callHistoryEl = document.getElementById("callHistory");
+const clearHistoryBtn = document.getElementById("clearHistory");
+
+// cards section
+function renderCards() {
+		cardSection.innerHTML = "";
+		services.forEach((service, idx) => {
+			cardSection.innerHTML += `
+				<div class="bg-white rounded-lg shadow p-6 flex flex-col justify-between">
+					<div class="flex items-start justify-between mb-2 w-full">
+						<!-- Icon on left, heart on right -->
+						<div class="flex items-center w-full">
+							<div class="flex-shrink-0 flex items-center justify-center bg-red-100 rounded-xl h-16 w-16">
+								<img src="${service.icon}" alt="icon" class="h-10 w-10"/>
+							</div>
+							<div class="flex-1 ml-4">
+								<div class="font-bold text-2xl leading-tight">${service.en}</div>
+								<div class="text-gray-500 text-lg">${service.name}</div>
+							</div>
+							<button class="heart-btn ml-auto" title="Favorite">
+								<svg class="h-6 w-6 text-gray-400 hover:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+								</svg>
+							</button>
+						</div>
+					</div>
+					<div class="mt-4">
+						<div class="text-2xl font-mono font-bold text-green-700 mb-1">${service.number}</div>
+						<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${service.badge} mb-2">${service.category}</span>
+					</div>
+					<div class="flex justify-between mt-4">
+						<button class="copy-btn flex-1 mr-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded flex items-center justify-center" data-number="${service.number}">
+							<svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+							Copy
+						</button>
+						<button class="call-btn flex-1 ml-2 text-white px-2 py-2 rounded flex items-center justify-center" style="background-color:#00A943;" data-id="${service.id}">
+							<svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 16.92V19a2 2 0 01-2 2A19.72 19.72 0 013 5a2 2 0 012-2h2.09a2 2 0 012 1.72c.13.81.36 1.6.7 2.34a2 2 0 01-.45 2.11l-1.27 1.27a16 16 0 006.29 6.29l1.27-1.27a2 2 0 012.11-.45c.74.34 1.53.57 2.34.7A2 2 0 0122 16.92z"/></svg>
+							Call
+						</button>
+					</div>
+				</div>
+			`;
+		});
+}
+
+// call history
+function renderHistory() {
+	callHistoryEl.innerHTML = "";
+	if (callHistory.length === 0) {
+		callHistoryEl.innerHTML = `<li class="text-gray-400 text-sm text-center mt-8">No call history yet.</li>`;
+		return;
+	}
+	callHistory.slice().reverse().forEach(item => {
+		callHistoryEl.innerHTML += `
+			<li class="flex justify-between items-center border-b pb-1">
+				<div>
+					<div class="font-semibold text-green-800">${item.name}</div>
+					<div class="text-xs text-gray-500">${item.number}</div>
+				</div>
+				<div class="text-xs text-gray-400">${item.time}</div>
+			</li>
+		`;
+	});
+}
+
+// Update navbar counts
+function updateNavbar() {
+	heartCountEl.textContent = heartCount;
+	coinCountEl.textContent = coinCount;
+	copyCountEl.textContent = copyCount;
+}
+
+// Event delegation for card actions
+cardSection.addEventListener("click", function(e) {
+	// Heart
+	if (e.target.closest(".heart-btn")) {
+		heartCount++;
+		updateNavbar();
+		return;
+	}
+	// Copy
+	if (e.target.closest(".copy-btn")) {
+		const number = e.target.closest(".copy-btn").dataset.number;
+		navigator.clipboard.writeText(number);
+		alert(`Hotline number ${number} copied!`);
+		copyCount++;
+		updateNavbar();
+		return;
+	}
+	// Call
+	if (e.target.closest(".call-btn")) {
+		const id = +e.target.closest(".call-btn").dataset.id;
+		const service = services.find(s => s.id === id);
+		if (coinCount < 20) {
+			alert("Not enough coins to make a call!");
+			return;
+		}
+		alert(`Calling ${service.en} (${service.number})`);
+		coinCount -= 20;
+		callHistory.push({
+			name: service.en,
+			number: service.number,
+			time: new Date().toLocaleTimeString(),
+		});
+		updateNavbar();
+		renderHistory();
+		return;
+	}
+});
+
+// Clear history
+clearHistoryBtn.addEventListener("click", function() {
+	callHistory = [];
+	renderHistory();
+});
+
+// Initial render
+renderCards();
+renderHistory();
+updateNavbar();
+	</script>
+</body>
+</html>
